@@ -11,7 +11,7 @@ node {
     // Mark the code build 'stage'....
     stage 'Build'
 
-    sh "${mvnHome}/bin/mvn clean verify -B"
+    sh "mvn clean verify -B"
     
     junit testResults: '**/surefire-reports/*.xml'
   }
