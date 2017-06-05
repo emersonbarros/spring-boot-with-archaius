@@ -10,8 +10,9 @@ node {
 
     // Mark the code build 'stage'....
     stage 'Build'
-
-    sh "mvn clean verify -B"
+    withMaven(maven: 'Maven') {
+        sh "mvn clean verify -B"
+    }
     
     junit testResults: '**/surefire-reports/*.xml'
   }
