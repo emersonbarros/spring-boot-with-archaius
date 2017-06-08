@@ -15,34 +15,22 @@ node {
     }
     
    stage 'Sonar'
-   sh '''
-     GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
-     SONAR_BRANCH=`printf '%s' $GIT_BRANCH | sed s/[^0-9a-zA-Z:_.\\-]/'_'/g`
-     echo "GIT_BRANCH=${GIT_BRANCH}" > my-build-vars.properties
-     echo "SONAR_BRANCH=${SONAR_BRANCH}" >> my-build-vars.properties
-   '''    
-   def props = getBuildProperties("my-build-vars.properties")
-   echo "my-build-vars.properties=${props}"
-   def sonarBranchParam = getSonarBranchParameter(props.getProperty('SONAR_BRANCH'))
-   withMaven(maven: 'Maven') {
-      sh "mvn sonar:sonar ${sonarBranchParam} -Dsonar.jdbc.url='${sonarDatabaseUrl}' -Dsonar.host.url=${sonarServerUrl} -Dsonar.jdbc.username=${sonarDatabaseLogin} -Dsonar.jdbc.password=${sonarDatabasePassword}"
-    }
-    junit testResults: '**/surefire-reports/*.xml'
-  }
-}
-def getSonarBranchParameter(branch) {
-    sonarBranchParam = ""
-     if ("develop".equals(branch)) {
-        echo "branch is develop, sonar.branch not mandatory"
-    } else {
-        echo "branch is not develop"
-        sonarBranchParam="-Dsonar.branch=" + branch
-    }
-   return sonarBranchParam
-}
+   withMaven(maven: 'Maven') {  
+      sh '''
+        BASE_URL="localhost"
+        PORT="9000"
+        PROJECT="teste"
+        NAME="${env.JOB_NAME}"
+        BRANCH="${env.BRANCH_NAME}"
+        GATE_ID="1"
 
-def Properties getBuildProperties(filename) {
-    def properties = new Properties()
-    properties.load(new StringReader(readFile(filename)))
-    return properties
+        PROJECT_ID=`curl -vs -i -X POST http://$BASE_URL:$PORT/api/projects/create -d key="$PROJECT" -d name="$NAME" -d branch="$BRANCH" 2>&1 | sed -n 's|.*"id":"\([^"]*\)".*|\1|p'`
+
+        echo "'$PROJECT_ID' associated to quality gate '$GATE_ID' (If project id is null, it was already created or an error occurred)"
+        RESPONSE=`curl -s -u admin:admin -X POST http://$BASE_URL:$PORT/api/qualitygates/select -d gateId="$GATE_ID" -d projectId="$PROJECT_ID"`
+      '''
+   }
+
+   junit testResults: '**/surefire-reports/*.xml'
+  }
 }
