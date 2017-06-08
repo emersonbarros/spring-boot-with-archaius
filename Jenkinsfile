@@ -14,6 +14,15 @@ node {
         sh "mvn clean verify -B"
     }
     
+    withSonarQubeEnv('sonarqube-rec') {
+          withMaven(maven: 'Maven') {        
+               // requires SonarQube Scanner for Maven 3.2+
+               sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
+               def props = getProperties("target/sonar/report-task.txt")
+               env.SONAR_CE_TASK_URL = props.getProperty('ceTaskUrl')
+		      }
+    }
+    
     junit testResults: '**/surefire-reports/*.xml'
   }
 }
