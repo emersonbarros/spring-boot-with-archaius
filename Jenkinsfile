@@ -17,17 +17,10 @@ node {
    stage 'Sonar'
    withMaven(maven: 'Maven') {  
       sh '''
-        BASE_URL="localhost"
-        PORT="9000"
-        PROJECT="teste"
-        NAME="${env.JOB_NAME}"
-        BRANCH="${env.BRANCH_NAME}"
-        GATE_ID="1"
 
-        PROJECT_ID=`curl -vs -i -X POST http://$BASE_URL:$PORT/api/projects/create -d key="$PROJECT" -d name="$NAME" -d branch="$BRANCH" 2>&1 | sed -n 's|.*"id":"\([^"]*\)".*|\1|p'`
+        PROJECT_ID=`curl -vs -i -X POST http://localhost:9000/api/projects/create -d key="teste" -d name="teste1" -d branch="develop" 2>&1 | sed -n 's|.*"id":"\([^"]*\)".*|\1|p'`
 
-        echo "'$PROJECT_ID' associated to quality gate '$GATE_ID' (If project id is null, it was already created or an error occurred)"
-        RESPONSE=`curl -s -u admin:admin -X POST http://$BASE_URL:$PORT/api/qualitygates/select -d gateId="$GATE_ID" -d projectId="$PROJECT_ID"`
+        RESPONSE=`curl -s -u admin:admin -X POST http://localhost:9000/api/qualitygates/select -d gateId="1" -d projectId="$PROJECT_ID"`
       '''
    }
 
