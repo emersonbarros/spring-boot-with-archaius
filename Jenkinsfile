@@ -14,15 +14,19 @@ node {
         sh "mvn clean verify -B"
     }
     
-    withSonarQubeEnv('sonarqube-rec') {
-          withMaven(maven: 'Maven') {        
-               // requires SonarQube Scanner for Maven 3.2+
-               sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
-               def props = getProperties("target/sonar/report-task.txt")
-               env.SONAR_CE_TASK_URL = props.getProperty('ceTaskUrl')
-		      }
+   stage 'Sonar'
+   sh '''
+     GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+     SONAR_BRANCH=`printf '%s' $GIT_BRANCH | sed s/[^0-9a-zA-Z:_.\\-]/'_'/g`
+     echo "GIT_BRANCH=${GIT_BRANCH}" > my-build-vars.properties
+     echo "SONAR_BRANCH=${SONAR_BRANCH}" >> my-build-vars.properties
+   '''    
+   def props = getBuildProperties("my-build-vars.properties")
+   echo "my-build-vars.properties=${props}"
+   def sonarBranchParam = getSonarBranchParameter(props.getProperty('SONAR_BRANCH'))
+   withMaven(maven: 'Maven') {
+      sh "mvn sonar:sonar ${sonarBranchParam} -Dsonar.jdbc.url='${sonarDatabaseUrl}' -Dsonar.host.url=${sonarServerUrl} -Dsonar.jdbc.username=${sonarDatabaseLogin} -Dsonar.jdbc.password=${sonarDatabasePassword}"
     }
-    
     junit testResults: '**/surefire-reports/*.xml'
   }
 }
