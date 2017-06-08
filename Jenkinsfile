@@ -17,7 +17,7 @@ node {
    stage 'Sonar'
    withMaven(maven: 'Maven') {  
       sh '''
-        RESPONSE=`curl -s -u admin:admin -X POST http://localhost:9000/api/qualitygates/select -d gateId="1" -d projectId="1"`
+        RESPONSE=`curl -s -u admin:admin -X POST http://192.168.252.38:9000/api/qualitygates/select -d gateId="1" -d projectId="1"`
       '''
    }
 
