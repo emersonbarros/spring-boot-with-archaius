@@ -17,10 +17,7 @@ node {
    stage 'Sonar'
    withMaven(maven: 'Maven') {  
       sh '''
-
-        PROJECT_ID=`curl -vs -i -X POST http://localhost:9000/api/projects/create -d key="teste" -d name="teste1" -d branch="develop" 2>&1 | sed -n 's|.*"id":"\([^"]*\)".*|\1|p'`
-
-        RESPONSE=`curl -s -u admin:admin -X POST http://localhost:9000/api/qualitygates/select -d gateId="1" -d projectId="$PROJECT_ID"`
+        RESPONSE=`curl -s -u admin:admin -X POST http://localhost:9000/api/qualitygates/select -d gateId="1" -d projectId="1"`
       '''
    }
 
