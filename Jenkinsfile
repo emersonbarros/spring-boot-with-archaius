@@ -15,12 +15,9 @@ node {
     }
     
    stage 'Sonar'
-   withMaven(maven: 'Maven') {  
-      sh '''
-        RESPONSE=`curl -s -u admin:admin -X POST http://192.168.252.38:9000/api/qualitygates/select -d gateId="1" -d projectId="1"`
-      '''
-   }
-
+   def sonarqubeScannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+   sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.issuesReport.html.enable=true -Dsonar.projectName=commons-develop -Dsonar.projectVersion=0.0.1 -Dsonar.projectKey=commons:develop -Dsonar.sources=."
+    
    junit testResults: '**/surefire-reports/*.xml'
   }
 }
