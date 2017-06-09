@@ -16,7 +16,7 @@ node {
     
    stage 'Sonar'
    def sonarqubeScannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-   sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -Dsonar.host.url=http://192.168.252.46:9001 -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.issuesReport.html.enable=true -Dsonar.projectName=commons-develop -Dsonar.projectVersion=0.0.1 -Dsonar.projectKey=commons:develop -Dsonar.sources=."
+   sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -X -Dsonar.host.url=http://192.168.252.46:9001 -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.issuesReport.html.enable=true -Dsonar.projectName=commons-develop -Dsonar.projectVersion=0.0.1 -Dsonar.projectKey=commons:develop -Dsonar.sources=."
     
    junit testResults: '**/surefire-reports/*.xml'
   }
